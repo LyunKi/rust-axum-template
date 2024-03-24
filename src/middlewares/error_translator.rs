@@ -1,14 +1,13 @@
 use std::{convert::Infallible, fmt::Debug};
-
 use axum::{
-    http::HeaderValue,
-    response::{IntoResponse, Response},
+    http::{HeaderValue,header},
+    response::Response,
+    body,
+        extract::Request,
 };
-use futures::future::BoxFuture;
-use hyper::{header, Request};
+use futures_util::future::BoxFuture;
 use intl_rs::TranslationConfig;
 use tower::{Layer, Service};
-
 use crate::error::{ServerError, TmpError};
 
 #[derive(Clone, Debug)]
@@ -64,7 +63,7 @@ where
                 Ok(response) if !response.status().is_success() => {
                     let status = response.status();
                     let body = response.into_body();
-                    let mut tmp_error = hyper::body::to_bytes(body)
+                    let mut tmp_error = body::to_bytes(body,usize::MAX)
                         .await
                         .ok()
                         .and_then(|bytes| serde_json::from_slice(&bytes).ok())

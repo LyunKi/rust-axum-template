@@ -1,5 +1,4 @@
-use axum::response::{IntoResponse, Response};
-use hyper::StatusCode;
+use axum::{response::Response,http::StatusCode};
 use intl_rs::{t, TranslationConfig};
 use into_response_derive::IntoResponse;
 use jsonwebtoken::errors::Error as JwtError;

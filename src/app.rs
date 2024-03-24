@@ -124,7 +124,6 @@ pub fn init(db: &DatabaseConnection) -> Router {
                 .allow_credentials(true)
                 .allow_headers(Any)
                 .expose_headers(Any)
-                .max_age(Duration::from_secs(60 * 60))
                 .allow_origin(Origin::list(
                     env::var("ALLOW_ORIGINS")
                         .unwrap()

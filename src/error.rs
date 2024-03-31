@@ -1,4 +1,4 @@
-use axum::{response::Response,http::StatusCode};
+use axum::{extract::rejection::JsonRejection, http::StatusCode, response::Response};
 use intl_rs::{t, TranslationConfig};
 use into_response_derive::IntoResponse;
 use jsonwebtoken::errors::Error as JwtError;
@@ -60,7 +60,7 @@ pub enum ServerError {
     #[error("{1}")]
     BuisinessError(StatusCode, &'static str),
     #[error(transparent)]
-    AxumJsonRejection(#[from] axum::extract::rejection::JsonRejection),
+    AxumJsonRejection(#[from] JsonRejection),
     #[error(transparent)]
     ValidationError(#[from] validator::ValidationErrors),
 }
@@ -152,7 +152,7 @@ fn flat_validation_errors(error: ValidationErrors) -> Vec<TmpError> {
         .collect()
 }
 
-impl IntoResponse for ServerError {
+impl axum::response::IntoResponse for ServerError {
     fn into_response(self) -> Response {
         match self {
             ServerError::TimeoutError => {

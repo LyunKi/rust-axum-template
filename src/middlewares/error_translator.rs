@@ -9,6 +9,7 @@ use futures_util::future::BoxFuture;
 use intl_rs::TranslationConfig;
 use tower::{Layer, Service};
 use crate::error::{ServerError, TmpError};
+use axum::response::IntoResponse;
 
 #[derive(Clone, Debug)]
 pub struct ErrorTranslator<S> {

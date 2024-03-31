@@ -1,13 +1,16 @@
-use __template__::app;
+use __template__::{
+    app,
+    common::context::{init_redis, REDIS},
+};
 use axum::serve;
 use dotenv::dotenv;
-use std::{env, error::Error, net::SocketAddr, io::stdout};
+use std::{env, error::Error, io::stdout, net::SocketAddr};
 use tokio::net::TcpListener;
 use tracing::metadata::LevelFilter;
 use tracing_appender::rolling;
 use tracing_subscriber::{fmt, prelude::__tracing_subscriber_SubscriberExt, Layer};
 
-fn init_tracing() ->Result<(), Box<dyn Error>>{
+fn init_tracing() -> Result<(), Box<dyn Error>> {
     let file_appender = rolling::daily("logs", "cas_server.log");
     let (writer, _guard) = tracing_appender::non_blocking(file_appender);
     let subscriber = tracing_subscriber::registry().with(
@@ -30,10 +33,10 @@ fn init_tracing() ->Result<(), Box<dyn Error>>{
     Ok(())
 }
 
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
+    REDIS.get_or_init(init_redis).await;
 
     init_tracing()?;
 

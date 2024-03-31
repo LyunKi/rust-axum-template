@@ -1,6 +1,18 @@
+use crate::{
+    common::constants::{REQUEST, RESPONSE},
+    common::context::REDIS,
+    error::ServerError,
+    middlewares::ErrorTranslatorLayer,
+};
 use axum::{
-    body::{Bytes,Body,self},http::Method, error_handling::HandleErrorLayer, http::Request, response::IntoResponse,
-    response::Response, routing, Extension, BoxError, Router, middleware::{Next, self}
+    body::{Body, Bytes},
+    error_handling::HandleErrorLayer,
+    http::Method,
+    http::Request,
+    middleware::{self, Next},
+    response::IntoResponse,
+    response::Response,
+    routing, BoxError, Extension, Router,
 };
 use sea_orm::DatabaseConnection;
 use std::{
@@ -12,7 +24,7 @@ use std::{
     time::Duration,
 };
 use tower::ServiceBuilder;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::{Any, CorsLayer, AllowOrigin};
 use tower_http::ServiceBuilderExt;
 use tower_http::{
     compression::CompressionLayer,
@@ -20,12 +32,7 @@ use tower_http::{
     trace::TraceLayer,
 };
 use tracing::debug_span;
-use crate::{
-    common::constants::{REQUEST, RESPONSE},
-    error::ServerError,
-    middlewares::ErrorTranslatorLayer,
-    utils::redis::REDIS,
-};
+use http_body_util::BodyExt;
 
 #[derive(Clone, Default)]
 struct RequestIdGenerator {
@@ -45,13 +52,13 @@ impl MakeRequestId for RequestIdGenerator {
     }
 }
 
-async fn buffer_and_print<B>(direction: &'static str, body: B) -> Result<Bytes, ServerError>
+async fn buffer_and_print<B>(direction: &str, body: B) -> Result<Bytes, ServerError>
 where
     B: axum::body::HttpBody<Data = Bytes>,
     B::Error: std::fmt::Debug,
 {
-    let bytes = match body::to_bytes(body).await {
-        Ok(bytes) => bytes,
+    let bytes = match body.collect().await {
+        Ok(collected) => collected.to_bytes(),
         Err(err) => {
             return Err(ServerError::decorate_error(err, ServerError::InvalidBody));
         }
@@ -64,7 +71,7 @@ where
 
 async fn print_request_response(
     req: Request<Body>,
-    next: Next<Body>,
+    next: Next,
 ) -> Result<impl IntoResponse, ServerError> {
     let (parts, body) = req.into_parts();
     let bytes = buffer_and_print(REQUEST, body).await?;
@@ -80,7 +87,7 @@ async fn print_request_response(
 
 pub fn init(db: &DatabaseConnection) -> Router {
     Router::new()
-        .route("/health=check", routing::get(|| async { "Hello, World!" }))
+        .route("/health-check", routing::get(|| async { "Hello, World!" }))
         .layer(
             ServiceBuilder::new()
                 .layer(CompressionLayer::new())
@@ -124,7 +131,7 @@ pub fn init(db: &DatabaseConnection) -> Router {
                 .allow_credentials(true)
                 .allow_headers(Any)
                 .expose_headers(Any)
-                .allow_origin(Origin::list(
+                .allow_origin(AllowOrigin::list(
                     env::var("ALLOW_ORIGINS")
                         .unwrap()
                         .split(",")

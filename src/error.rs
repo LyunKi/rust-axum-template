@@ -58,7 +58,7 @@ pub enum ServerError {
     #[error("{BAD_REQUEST}")]
     BadRequest,
     #[error("{1}")]
-    BuisinessError(StatusCode, &'static str),
+    BusinessError(StatusCode, &'static str),
     #[error(transparent)]
     AxumJsonRejection(#[from] JsonRejection),
     #[error(transparent)]
@@ -72,7 +72,7 @@ impl ServerError {
 
     pub fn decorate_error<T: fmt::Debug>(err: T, show_err: ServerError) -> Self {
         tracing::warn!(
-            "Error occured: {:#?} ,\n and would ben shown as {:#?}",
+            "Error occured: {:#?} ,\n and would be shown as {:#?}",
             err,
             show_err
         );
@@ -174,7 +174,7 @@ impl axum::response::IntoResponse for ServerError {
                 let tmp_error = TmpError::new(VALIDATION_ERROR.to_string(), None, errors);
                 (StatusCode::BAD_REQUEST, tmp_error).into_response()
             }
-            ServerError::BuisinessError(status, code) => {
+            ServerError::BusinessError(status, code) => {
                 (status, TmpError::from_code(code.to_string())).into_response()
             }
             _ => (StatusCode::INTERNAL_SERVER_ERROR, TmpError::from(self)).into_response(),

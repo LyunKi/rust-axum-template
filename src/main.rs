@@ -17,7 +17,7 @@ fn init_tracing() -> Result<(), Box<dyn Error>> {
         fmt::Layer::new()
             .with_writer(writer)
             .with_ansi(false)
-            .with_filter(LevelFilter::DEBUG),
+            .with_filter(LevelFilter::INFO),
     );
     let mode = env::var("MODE")?;
     if mode == "DEBUG" {

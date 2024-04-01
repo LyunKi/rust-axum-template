@@ -17,7 +17,7 @@ into_response_derive = { path = "../into-response-derive" }
 jsonwebtoken = "9.3.0"
 mime = "0.3.17"
 redis = {version="0.25.2",features=["tokio-comp"]}
-sea-orm = "0.12.15"
+sea-orm = { version = "0.12.15", features = [ "sqlx-mysql", "runtime-tokio-rustls", "macros", "debug-print" ] }
 serde = "1.0.197"
 serde_json = "1.0.114"
 thiserror = "1.0.58"

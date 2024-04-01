@@ -23,6 +23,7 @@ fn init_tracing() -> Result<(), Box<dyn Error>> {
     if mode == "DEBUG" {
         let subscriber = subscriber.with(
             fmt::Layer::new()
+                .with_test_writer()
                 .with_writer(stdout)
                 .with_filter(LevelFilter::DEBUG),
         );

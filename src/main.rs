@@ -1,7 +1,4 @@
-use __template__::{
-    app,
-    common::context::{init_redis, REDIS},
-};
+use __template__::app;
 use axum::serve;
 use dotenv::dotenv;
 use std::{env, error::Error, io::stdout, net::SocketAddr};
@@ -37,7 +34,6 @@ fn init_tracing() -> Result<(), Box<dyn Error>> {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
-    REDIS.get_or_init(init_redis).await;
 
     init_tracing()?;
 
@@ -46,7 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let address: SocketAddr = format!("{}:{}", host, port).parse()?;
     tracing::debug!("cas server is listening on {}", address);
 
-    let app = app::init();
+    let app = app::init().await;
     let listener = TcpListener::bind(address).await?;
     serve(listener, app).await?;
     Ok(())

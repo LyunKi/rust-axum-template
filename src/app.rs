@@ -1,6 +1,8 @@
 use crate::{
-    common::constants::{REQUEST, RESPONSE},
-    common::context::REDIS,
+    common::{
+        constants::{REQUEST, RESPONSE},
+        context::{init_app_state, APP_STATE},
+    },
     error::ServerError,
     middlewares::ErrorTranslatorLayer,
 };
@@ -12,9 +14,9 @@ use axum::{
     middleware::{self, Next},
     response::IntoResponse,
     response::Response,
-    routing, BoxError, Extension, Router,
+    routing, BoxError, Router,
 };
-use sea_orm::DatabaseConnection;
+use http_body_util::BodyExt;
 use std::{
     env,
     sync::{
@@ -24,7 +26,7 @@ use std::{
     time::Duration,
 };
 use tower::ServiceBuilder;
-use tower_http::cors::{Any, CorsLayer, AllowOrigin};
+use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 use tower_http::ServiceBuilderExt;
 use tower_http::{
     compression::CompressionLayer,
@@ -32,7 +34,6 @@ use tower_http::{
     trace::TraceLayer,
 };
 use tracing::debug_span;
-use http_body_util::BodyExt;
 
 #[derive(Clone, Default)]
 struct RequestIdGenerator {
@@ -85,7 +86,7 @@ async fn print_request_response(
     Ok(res)
 }
 
-pub fn init(db: &DatabaseConnection) -> Router {
+pub async fn init() -> Router {
     Router::new()
         .route("/health-check", routing::get(|| async { "Hello, World!" }))
         .layer(
@@ -122,8 +123,6 @@ pub fn init(db: &DatabaseConnection) -> Router {
                 .concurrency_limit(1024)
                 .timeout(Duration::from_secs(10))
                 .layer(middleware::from_fn(print_request_response))
-                .layer(Extension(db.clone()))
-                .layer(Extension(REDIS.get().unwrap().clone()))
                 .into_inner(),
         )
         .layer(
@@ -145,4 +144,5 @@ pub fn init(db: &DatabaseConnection) -> Router {
                     Method::PUT,
                 ]),
         )
+        .with_state(APP_STATE.get_or_init(init_app_state).await)
 }

@@ -8,7 +8,7 @@ publish = false
 name = "entity"
 path = "src/lib.rs"
 
-[dependencies.sea-orm-migration]
+[dependencies.sea-orm]
 version = "0.12.5"
 features = [
   "runtime-tokio-rustls",  

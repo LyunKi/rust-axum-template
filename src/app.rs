@@ -5,6 +5,7 @@ use crate::{
     },
     error::ServerError,
     middlewares::ErrorTranslatorLayer,
+    handlers
 };
 use axum::{
     body::{Body, Bytes},
@@ -75,6 +76,13 @@ async fn print_request_response(
     next: Next,
 ) -> Result<impl IntoResponse, ServerError> {
     let (parts, body) = req.into_parts();
+
+    tracing::info!(
+        "Tracing request, method = {:?} uri = {:?}",
+        &parts.method,
+        &parts.uri
+    );
+
     let bytes = buffer_and_print(REQUEST, body).await?;
     let req = Request::from_parts(parts, Body::from(bytes));
 
@@ -89,6 +97,7 @@ async fn print_request_response(
 pub async fn init() -> Router {
     Router::new()
         .route("/health-check", routing::get(|| async { "Hello, World!" }))
+        .route("/demo/i18n", routing::get(handlers::i18n_demo))
         .layer(
             ServiceBuilder::new()
                 .layer(CompressionLayer::new())
@@ -127,7 +136,6 @@ pub async fn init() -> Router {
         )
         .layer(
             CorsLayer::new()
-                .allow_credentials(true)
                 .allow_headers(Any)
                 .expose_headers(Any)
                 .allow_origin(AllowOrigin::list(

@@ -6,9 +6,9 @@ use axum::{
         extract::Request,
 };
 use futures_util::future::BoxFuture;
-use intl_rs::TranslationConfig;
+use immortal_intl_rs::TranslationConfig;
 use tower::{Layer, Service};
-use crate::error::{ServerError, TmpError};
+use immortal_axum_utils::error::{ServerError, TmpError};
 use axum::response::IntoResponse;
 
 #[derive(Clone, Debug)]
@@ -51,7 +51,7 @@ where
     }
 
     fn call(&mut self, req: Request<ReqBody>) -> Self::Future {
-        let accept_language = req
+        let accept_language: Option<String> = req
             .headers()
             .get(header::ACCEPT_LANGUAGE)
             .map(HeaderValue::to_str)

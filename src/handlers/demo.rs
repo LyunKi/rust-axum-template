@@ -1,6 +1,6 @@
-use crate::{error::ServerError, extractors::AcceptLanguage};
-use axum_extra::{headers::{self, AcceptRanges}, TypedHeader};
+use immortal_axum_utils::{error::ServerError, extractors::headers::AcceptLanguage};
+use axum_extra::TypedHeader;
 
-pub async fn i18n_demo(TypedHeader(user_agent): TypedHeader<AcceptRanges>) -> Result<(), ServerError> {
+pub async fn i18n_demo(TypedHeader(acceptLanguage): TypedHeader<AcceptLanguage>) -> Result<(), ServerError> {
     Ok(())
 }

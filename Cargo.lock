@@ -13,9 +13,9 @@ dependencies = [
  "entity",
  "futures-util",
  "http-body-util",
- "icu_locid",
- "intl-rs",
- "into_response_derive",
+ "immortal_axum_macro",
+ "immortal_axum_utils",
+ "immortal_intl_rs",
  "jsonwebtoken",
  "migration",
  "mime",
@@ -412,9 +412,9 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "axum"
-version = "0.7.4"
+version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1236b4b292f6c4d6dc34604bb5120d85c3fe1d1aa596bd5cc52ca054d13e7b9e"
+checksum = "3a6c9af12842a67734c9a2e355436e5d03b22383ed60cf13cd0c18fbfe3dcbcf"
 dependencies = [
  "async-trait",
  "axum-core",
@@ -436,7 +436,7 @@ dependencies = [
  "serde_json",
  "serde_path_to_error",
  "serde_urlencoded",
- "sync_wrapper",
+ "sync_wrapper 1.0.1",
  "tokio",
  "tower",
  "tower-layer",
@@ -459,7 +459,7 @@ dependencies = [
  "mime",
  "pin-project-lite",
  "rustversion",
- "sync_wrapper",
+ "sync_wrapper 0.1.2",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -1242,25 +1242,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "h2"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51ee2dd2e4f378392eeff5d51618cd9a63166a2513846bbc55f21cfacd9199d4"
-dependencies = [
- "bytes",
- "fnv",
- "futures-core",
- "futures-sink",
- "futures-util",
- "http",
- "indexmap",
- "slab",
- "tokio",
- "tokio-util",
- "tracing",
-]
-
-[[package]]
 name = "hashbrown"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1421,7 +1402,6 @@ dependencies = [
  "bytes",
  "futures-channel",
  "futures-util",
- "h2",
  "http",
  "http-body",
  "httparse",
@@ -1494,6 +1474,47 @@ dependencies = [
 ]
 
 [[package]]
+name = "immortal_axum_macro"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3709612e2e7e1b21968c24483b67411c16cd4c82faebb242c1f9b15e16e025af"
+dependencies = [
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "immortal_axum_utils"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ce322cbe2e0df1945e0c636043412cb00814195bdb40fea9c45ae1c06357707"
+dependencies = [
+ "axum",
+ "axum-extra",
+ "icu_locid",
+ "immortal_axum_macro",
+ "immortal_intl_rs",
+ "mime",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tracing",
+ "validator",
+]
+
+[[package]]
+name = "immortal_intl_rs"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a4fcc788e8c940fbb6e58522a935578f43ede142135af66205e98ab5e8f6a0c"
+dependencies = [
+ "accept-language",
+ "lazy_static",
+ "serde_json",
+ "string_template",
+]
+
+[[package]]
 name = "indexmap"
 version = "2.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1521,28 +1542,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a5bbe824c507c5da5956355e86a746d82e0e1464f65d862cc5e71da70e94b2c"
 dependencies = [
  "cfg-if",
-]
-
-[[package]]
-name = "intl-rs"
-version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4247541f0d071ffc3c773809a5a753bed69ae5459a11ba6b5d442f96874da0c"
-dependencies = [
- "accept-language",
- "lazy_static",
- "serde_json",
- "string_template",
-]
-
-[[package]]
-name = "into_response_derive"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c1a7199cdb6f65f9adda7687f27f4428887d55bcc6fb6d64f8613fd07f4abd2"
-dependencies = [
- "quote",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -3097,6 +3096,12 @@ name = "sync_wrapper"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2047c6ded9c721764247e62cd3b03c09ffc529b2ba5b10ec482ae507a4a70160"
+
+[[package]]
+name = "sync_wrapper"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a7065abeca94b6a8a577f9bd45aa0867a2238b74e8eb67cf10d492bc39351394"
 
 [[package]]
 name = "tap"

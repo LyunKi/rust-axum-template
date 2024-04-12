@@ -1,6 +1,6 @@
 use axum::{extract::rejection::JsonRejection, http::StatusCode, response::Response};
-use intl_rs::{t, TranslationConfig};
-use into_response_derive::IntoResponse;
+use immortal_intl_rs::{t, TranslationConfig};
+use immortal_axum_macro::IntoResponse;
 use jsonwebtoken::errors::Error as JwtError;
 use redis::RedisError;
 use sea_orm::DbErr;

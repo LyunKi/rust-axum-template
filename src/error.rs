@@ -80,76 +80,12 @@ impl ServerError {
     }
 }
 
-#[derive(Serialize, Deserialize, IntoResponse, Debug)]
-pub struct ErrorResponse {
-    pub code: String,
-    pub msg: String,
-    pub errors: Vec<ErrorResponse>,
-}
-
-#[derive(Serialize, Deserialize, IntoResponse, Default)]
-pub struct TmpError {
-    pub args: Option<HashMap<String, String>>,
-    pub code: String,
-    pub errors: Vec<TmpError>,
-}
-
-impl TmpError {
-    pub fn internal_error() -> Self {
-        Self::from_code(INTERNAL_SERVER_ERROR.to_string())
-    }
-    pub fn translate(self, config: &TranslationConfig) -> ErrorResponse {
-        let TmpError {
-            code,
-            args: _,
-            errors,
-        } = self;
-        let msg = t!(&code, config: &config);
-        let code = code.to_string();
-        ErrorResponse {
-            code,
-            msg,
-            errors: errors
-                .into_iter()
-                .map(|error| error.translate(&config))
-                .collect(),
-        }
-    }
-    pub fn from_code(code: String) -> Self {
-        TmpError {
-            code,
-            ..Default::default()
-        }
-    }
-    pub fn new(code: String, args: Option<HashMap<String, String>>, errors: Vec<TmpError>) -> Self {
-        TmpError { code, args, errors }
-    }
-}
-
 impl From<ServerError> for TmpError {
     fn from(error: ServerError) -> Self {
         match error {
             _ => TmpError::from_code(error.to_string()),
         }
     }
-}
-
-fn flat_validation_errors(error: ValidationErrors) -> Vec<TmpError> {
-    error
-        .into_errors()
-        .into_iter()
-        .flat_map(|(_key, value)| match value {
-            ValidationErrorsKind::Field(field_errors) => field_errors
-                .iter()
-                .map(|field_error| TmpError::from_code(field_error.code.to_string()))
-                .collect(),
-            ValidationErrorsKind::Struct(struct_error) => flat_validation_errors(*struct_error),
-            ValidationErrorsKind::List(nested_errors) => nested_errors
-                .into_iter()
-                .flat_map(|(_, error)| flat_validation_errors(*error))
-                .collect(),
-        })
-        .collect()
 }
 
 impl axum::response::IntoResponse for ServerError {
@@ -169,11 +105,6 @@ impl axum::response::IntoResponse for ServerError {
                 TmpError::from(ServerError::decorate_error(err, ServerError::BadRequest)),
             )
                 .into_response(),
-            ServerError::ValidationError(error) => {
-                let errors = flat_validation_errors(error);
-                let tmp_error = TmpError::new(VALIDATION_ERROR.to_string(), None, errors);
-                (StatusCode::BAD_REQUEST, tmp_error).into_response()
-            }
             ServerError::BusinessError(status, code) => {
                 (status, TmpError::from_code(code.to_string())).into_response()
             }

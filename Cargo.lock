@@ -1485,12 +1485,13 @@ dependencies = [
 
 [[package]]
 name = "immortal_axum_utils"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ce322cbe2e0df1945e0c636043412cb00814195bdb40fea9c45ae1c06357707"
+checksum = "317b8c6c9d24ad280c0255fc4142d3b05ceb31fba121d2a513c7f2dcd4e0e2cc"
 dependencies = [
  "axum",
  "axum-extra",
+ "futures-util",
  "icu_locid",
  "immortal_axum_macro",
  "immortal_intl_rs",
@@ -1498,6 +1499,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+ "tower",
  "tracing",
  "validator",
 ]

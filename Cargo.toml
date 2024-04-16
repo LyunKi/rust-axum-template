@@ -17,7 +17,7 @@ futures-util = "0.3.30"
 http-body-util = "0.1.1"
 immortal_intl_rs = "0.1.0"
 immortal_axum_macro = "0.1.0"
-immortal_axum_utils = "0.1.0"
+immortal_axum_utils = "0.2.0"
 jsonwebtoken = "9.3.0"
 mime = "0.3.17"
 redis = {version="0.25.2",features=["tokio-comp"]}

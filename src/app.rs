@@ -3,8 +3,6 @@ use crate::{
         constants::{REQUEST, RESPONSE},
         context::{init_app_state, APP_STATE},
     },
-    error::ServerError,
-    middlewares::ErrorTranslatorLayer,
     handlers
 };
 use axum::{
@@ -18,6 +16,7 @@ use axum::{
     routing, BoxError, Router,
 };
 use http_body_util::BodyExt;
+use immortal_axum_utils::middlewares::ErrorTranslatorLayer;
 use std::{
     env,
     sync::{

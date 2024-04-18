@@ -6,6 +6,7 @@ version = 3
 name = "__template__"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "axum",
  "axum-extra",
  "bytes",
@@ -13,9 +14,9 @@ dependencies = [
  "entity",
  "futures-util",
  "http-body-util",
- "immortal_axum_macro",
+ "immortal_axum_macro 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "immortal_axum_utils",
- "immortal_intl_rs",
+ "immortal_intl_rs 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonwebtoken",
  "migration",
  "mime",
@@ -177,6 +178,12 @@ dependencies = [
  "anstyle",
  "windows-sys 0.52.0",
 ]
+
+[[package]]
+name = "anyhow"
+version = "1.0.82"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f538837af36e6f6a9be0faa67f9a314f8119e4e4b5867c6ab40ed60360142519"
 
 [[package]]
 name = "arrayvec"
@@ -1476,6 +1483,14 @@ dependencies = [
 [[package]]
 name = "immortal_axum_macro"
 version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "immortal_axum_macro"
+version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3709612e2e7e1b21968c24483b67411c16cd4c82faebb242c1f9b15e16e025af"
 dependencies = [
@@ -1486,15 +1501,14 @@ dependencies = [
 [[package]]
 name = "immortal_axum_utils"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "317b8c6c9d24ad280c0255fc4142d3b05ceb31fba121d2a513c7f2dcd4e0e2cc"
 dependencies = [
+ "anyhow",
  "axum",
  "axum-extra",
  "futures-util",
  "icu_locid",
- "immortal_axum_macro",
- "immortal_intl_rs",
+ "immortal_axum_macro 0.1.0",
+ "immortal_intl_rs 0.1.0",
  "mime",
  "serde",
  "serde_json",
@@ -1502,6 +1516,16 @@ dependencies = [
  "tower",
  "tracing",
  "validator",
+]
+
+[[package]]
+name = "immortal_intl_rs"
+version = "0.1.0"
+dependencies = [
+ "accept-language",
+ "lazy_static",
+ "serde_json",
+ "string_template",
 ]
 
 [[package]]

@@ -16,7 +16,7 @@ use axum::{
     routing, BoxError, Router,
 };
 use http_body_util::BodyExt;
-use immortal_axum_utils::middlewares::ErrorTranslatorLayer;
+use immortal_axum_utils::{error::{Error, ErrorResponse}, middlewares::ErrorTranslatorLayer};
 use std::{
     env,
     sync::{
@@ -53,15 +53,15 @@ impl MakeRequestId for RequestIdGenerator {
     }
 }
 
-async fn buffer_and_print<B>(direction: &str, body: B) -> Result<Bytes, ServerError>
+async fn buffer_and_print<B>(direction: &str, body: B) -> Result<Bytes, Error>
 where
     B: axum::body::HttpBody<Data = Bytes>,
-    B::Error: std::fmt::Debug,
+    B::Error: std::error::Error,
 {
     let bytes = match body.collect().await {
         Ok(collected) => collected.to_bytes(),
         Err(err) => {
-            return Err(ServerError::decorate_error(err, ServerError::InvalidBody));
+            return Err(Error::from(err));
         }
     };
     if let Ok(body) = std::str::from_utf8(&bytes) {
@@ -73,7 +73,7 @@ where
 async fn print_request_response(
     req: Request<Body>,
     next: Next,
-) -> Result<impl IntoResponse, ServerError> {
+) -> Result<impl IntoResponse, Error> {
     let (parts, body) = req.into_parts();
 
     tracing::info!(
@@ -119,13 +119,7 @@ pub async fn init() -> Router {
                 .layer(ErrorTranslatorLayer::new())
                 .layer(HandleErrorLayer::new(|error: BoxError| async move {
                     tracing::error!("Unhandled Error occureed, origin error is {:#?}", error);
-                    if error.is::<tower::timeout::error::Elapsed>() {
-                        ServerError::TimeoutError
-                    } else if error.is::<tower::load_shed::error::Overloaded>() {
-                        ServerError::ServiceUnavailable
-                    } else {
-                        ServerError::InternalServerError
-                    }
+                    ErrorResponse::internal_error(error)
                 }))
                 .load_shed()
                 .concurrency_limit(1024)

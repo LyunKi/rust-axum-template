@@ -15,8 +15,8 @@ bytes = "1.6.0"
 dotenv = "0.15.0"
 futures-util = "0.3.30"
 http-body-util = "0.1.1"
-immortal_intl_rs = "0.1.0"
-immortal_axum_macro = "0.1.0"
+immortal_intl_rs = {version="0.2.0", path="../immortal/intl_rs"}
+immortal_axum_macro = {version="0.2.0", path="../immortal/axum_macro"}
 immortal_axum_utils = {version="0.2.0", path="../immortal/axum_utils"}
 jsonwebtoken = "9.3.0"
 mime = "0.3.17"

@@ -27,3 +27,4 @@ pub async fn init_app_state() -> AppState {
 
     AppState { db, redis }
 }
+

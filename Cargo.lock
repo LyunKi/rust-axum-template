@@ -12,6 +12,7 @@ dependencies = [
  "bytes",
  "dotenv",
  "entity",
+ "form_urlencoded",
  "futures-util",
  "http-body-util",
  "immortal_axum_macro",

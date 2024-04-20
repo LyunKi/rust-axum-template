@@ -3,7 +3,7 @@ use crate::{
         constants::{REQUEST, RESPONSE},
         context::{init_app_state, APP_STATE},
     },
-    handlers
+    handlers,
 };
 use anyhow::anyhow;
 use axum::{
@@ -17,7 +17,10 @@ use axum::{
     routing, BoxError, Router,
 };
 use http_body_util::BodyExt;
-use immortal_axum_utils::{error::{ErrorResponse,Error}, middlewares::ErrorTranslatorLayer};
+use immortal_axum_utils::{
+    error::{Error, ErrorResponse},
+    middlewares::ErrorTranslatorLayer,
+};
 use std::{
     env,
     sync::{
@@ -98,6 +101,16 @@ pub async fn init() -> Router {
     Router::new()
         .route("/health-check", routing::get(|| async { "Hello, world!" }))
         .route("/demo/i18n", routing::get(handlers::i18n_demo))
+        .route(
+            "/demo/users",
+            routing::post(handlers::create_user).get(handlers::get_user_list),
+        )
+        .route(
+            "/demo/users/:id",
+            routing::get(handlers::get_user)
+                .delete(handlers::delete_user)
+                .put(handlers::update_user),
+        )
         .layer(
             ServiceBuilder::new()
                 .layer(CompressionLayer::new())

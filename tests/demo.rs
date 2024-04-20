@@ -26,7 +26,7 @@ async fn test_i18n() {
     dotenv().ok();
     let mut app = app::init().await.into_service();
     let request = Request::builder()
-        .uri("/demo/i18n?name=rust")
+        .uri("/demo/i18n?name=world")
         .body(Body::empty())
         .unwrap();
     let response: http::Response<Body> = ServiceExt::<Request<Body>>::ready(&mut app)
@@ -38,11 +38,14 @@ async fn test_i18n() {
     assert_eq!(response.status(), StatusCode::OK);
     let body = response.into_body().collect().await.unwrap().to_bytes();
     // default to use en language
-    assert_eq!(&body[..], b"Hello, rust!");
+    assert_eq!(&body[..], b"Hello, world!");
 
-    let request = Request::builder()
+    let uri = form_urlencoded::Serializer::new(String::new())
+        .append_pair("name", "世界")
+        .finish();
+    let request: Request<Body> = Request::builder()
         .header("Accept-Language", "zh")
-        .uri("/demo/i18n?name=rust")
+        .uri(format!("/demo/i18n?{uri}"))
         .body(Body::empty())
         .unwrap();
     let response: http::Response<Body> = ServiceExt::<Request<Body>>::ready(&mut app)
@@ -53,5 +56,5 @@ async fn test_i18n() {
         .unwrap();
     assert_eq!(response.status(), StatusCode::OK);
     let body = response.into_body().collect().await.unwrap().to_bytes();
-    assert_eq!(String::from_utf8_lossy(&body[..]), "你好，rust！");
+    assert_eq!(String::from_utf8_lossy(&body[..]), "你好，世界！");
 }

@@ -24,3 +24,14 @@ pub async fn i18n_demo(
     let hello = t!("demo.hello", accept_language:accept_language, args:args);
     Ok(hello)
 }
+
+
+pub async fn create_user() {}
+
+pub async fn get_user() {}
+
+pub async fn update_user() {}
+
+pub async fn delete_user() {}
+
+pub async fn get_user_list() {}

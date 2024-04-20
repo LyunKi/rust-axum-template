@@ -5,6 +5,7 @@ use crate::{
     },
     handlers
 };
+use anyhow::anyhow;
 use axum::{
     body::{Body, Bytes},
     error_handling::HandleErrorLayer,
@@ -16,7 +17,7 @@ use axum::{
     routing, BoxError, Router,
 };
 use http_body_util::BodyExt;
-use immortal_axum_utils::{error::{Error, ErrorResponse}, middlewares::ErrorTranslatorLayer};
+use immortal_axum_utils::{error::{ErrorResponse,Error}, middlewares::ErrorTranslatorLayer};
 use std::{
     env,
     sync::{
@@ -61,7 +62,7 @@ where
     let bytes = match body.collect().await {
         Ok(collected) => collected.to_bytes(),
         Err(err) => {
-            return Err(Error::from(err));
+            return Err(anyhow!("failed to collect body: {}", err).into());
         }
     };
     if let Ok(body) = std::str::from_utf8(&bytes) {

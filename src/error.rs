@@ -9,6 +9,8 @@ pub enum ServerError {
     BusinessError(StatusCode, &'static str),
 }
 
+pub static INVALID_PARAMS: &str = "error.invalid_params";
+
 impl axum::response::IntoResponse for ServerError {
     fn into_response(self) -> Response {
         match self {

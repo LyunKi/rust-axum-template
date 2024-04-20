@@ -1,5 +1,9 @@
 {
+  "demo": {
+    "hello": "Hello, {{name}}!"
+  },
   "error": {
-    "internal_error": "Internal Server Error"
+    "internal_error": "Internal server error",
+    "invalid_params": "Invalid params"
   }
 }

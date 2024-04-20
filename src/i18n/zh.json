@@ -1,5 +1,9 @@
 {
+  "demo": {
+    "hello": "你好，{{name}}！"
+  },
   "error": {
-    "internal_error": "服务器内部错误"
+    "internal_error": "服务器内部错误",
+    "invalid_params": "参数错误"
   }
 }

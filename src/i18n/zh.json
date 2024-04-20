@@ -3,6 +3,9 @@
     "hello": "你好，{{name}}！"
   },
   "error": {
+    "business": {
+      "name_limit": "用户名长度不应超过10个字符"
+    },
     "internal_error": "服务器内部错误",
     "invalid_params": "参数错误"
   }

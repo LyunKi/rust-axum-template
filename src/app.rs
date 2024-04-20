@@ -18,7 +18,7 @@ use axum::{
 };
 use http_body_util::BodyExt;
 use immortal_axum_utils::{
-    error::{Error, ErrorResponse},
+    error::ErrorResponse,
     middlewares::ErrorTranslatorLayer,
 };
 use std::{
@@ -57,7 +57,7 @@ impl MakeRequestId for RequestIdGenerator {
     }
 }
 
-async fn buffer_and_print<B>(direction: &str, body: B) -> Result<Bytes, Error>
+async fn buffer_and_print<B>(direction: &str, body: B) -> Result<Bytes, ErrorResponse>
 where
     B: axum::body::HttpBody<Data = Bytes>,
     B::Error: std::error::Error,
@@ -77,7 +77,7 @@ where
 async fn print_request_response(
     req: Request<Body>,
     next: Next,
-) -> Result<impl IntoResponse, Error> {
+) -> Result<impl IntoResponse, ErrorResponse> {
     let (parts, body) = req.into_parts();
 
     tracing::info!(
@@ -159,5 +159,5 @@ pub async fn init() -> Router {
                     Method::PUT,
                 ]),
         )
-        .with_state(APP_STATE.get_or_init(init_app_state).await)
+        .with_state(APP_STATE.get_or_init(init_app_state).await.clone())
 }

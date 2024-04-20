@@ -10,8 +10,8 @@ pub type Redis = OnceCell<RedisConnection>;
 
 #[derive(Clone)]
 pub struct AppState {
-    db: DatabaseConnection,
-    redis: MultiplexedConnection,
+    pub db: DatabaseConnection,
+    pub redis: MultiplexedConnection,
 }
 
 pub static APP_STATE: OnceCell<AppState> = OnceCell::const_new();

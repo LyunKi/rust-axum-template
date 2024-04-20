@@ -1,10 +1,12 @@
-use __template__::app;
+use __template__::{app, dto::CreateUserReq};
 use axum::{
     body::Body,
-    http::{self, Request, StatusCode},
+    http::{self, Request, StatusCode}, 
 };
+use axum_test_helpers::TestClient;
 use dotenv::dotenv;
 use http_body_util::BodyExt;
+use immortal_axum_utils::error::ErrorResponseBody;
 use tower::{Service, ServiceExt};
 
 #[tokio::test]
@@ -57,4 +59,22 @@ async fn test_i18n() {
     assert_eq!(response.status(), StatusCode::OK);
     let body = response.into_body().collect().await.unwrap().to_bytes();
     assert_eq!(String::from_utf8_lossy(&body[..]), "你好，世界！");
+}
+
+#[tokio::test]
+async fn test_validation() {
+    dotenv().ok();
+    let app: axum::Router = app::init().await;
+    let create_user_req = CreateUserReq {
+        name: "".to_string(),
+    };
+    let client = TestClient::new(app);
+    let response = client.post("/demo/users").json(&create_user_req).await;
+
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+
+    let body =response.json::<ErrorResponseBody>().await;
+    dbg!(&body);
+    assert_eq!(&body.code, "error.business.name_limit");
+    assert_eq!(body.children.unwrap().first().unwrap().code, "error.business.name_limit");
 }

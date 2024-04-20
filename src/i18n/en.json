@@ -3,6 +3,9 @@
     "hello": "Hello, {{name}}!"
   },
   "error": {
+    "business": {
+      "name_limit": "Username length should not exceed 10 characters."
+    },
     "internal_error": "Internal server error",
     "invalid_params": "Invalid params"
   }

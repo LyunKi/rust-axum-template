@@ -40,10 +40,9 @@ pub async fn i18n_demo(
 }
 
 pub async fn create_user(
-    State(state): State<AppState>,
+    State(AppState { db, redis: _ }): State<AppState>,
     ValidatedJson(user): ValidatedJson<CreateUserReq>,
 ) -> Result<CreateUserRsp, ErrorResponse> {
-    let db = state.db;
     let transaction = db.begin().await?;
     // just a demo, no need to validate
     let result = user::ActiveModel {

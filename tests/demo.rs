@@ -74,7 +74,6 @@ async fn test_validation() {
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 
     let body =response.json::<ErrorResponseBody>().await;
-    dbg!(&body);
     assert_eq!(&body.code, "error.business.name_limit");
     assert_eq!(body.children.unwrap().first().unwrap().code, "error.business.name_limit");
 }

@@ -96,7 +96,7 @@ async fn print_request_response(
 
 pub async fn init() -> Router {
     Router::new()
-        .route("/health-check", routing::get(|| async { "Hello, World!" }))
+        .route("/health-check", routing::get(|| async { "Hello, world!" }))
         .route("/demo/i18n", routing::get(handlers::i18n_demo))
         .layer(
             ServiceBuilder::new()

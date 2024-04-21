@@ -1,4 +1,4 @@
-use __template__::{app, dto::CreateUserReq};
+use __template__::{app, dto::{CreateUserReq, UpdateUserReq, UserRspDto}};
 use axum::{
     body::Body,
     http::{self, Request, StatusCode}, 
@@ -74,6 +74,41 @@ async fn test_validation() {
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 
     let body =response.json::<ErrorResponseBody>().await;
-    assert_eq!(&body.code, "error.business.name_limit");
+    assert_eq!(&body.code, "error.bad_request");
     assert_eq!(body.children.unwrap().first().unwrap().code, "error.business.name_limit");
+}
+
+
+#[tokio::test]
+async fn test_crud() {
+    dotenv().ok();
+    let app = app::init().await;
+    let create_user_req = CreateUserReq {
+        name: "1".to_string(),
+    };
+    let client = TestClient::new(app);
+    // create
+    let response = client.post("/demo/users").json(&create_user_req).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let body =response.json::<UserRspDto>().await;
+    let id = body.id;
+    assert_eq!(body.name, "1");
+    // get one
+    let response = client.get(&format!("/demo/users/{id}")).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let body =response.json::<UserRspDto>().await;
+    assert_eq!(body.name, "1");   
+    // update
+    let req = UpdateUserReq {
+        name: "2".to_string()
+    };
+    let response = client.put(&format!("/demo/users/{id}")).json(&req).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let body =response.json::<UserRspDto>().await;
+    assert_eq!(body.name, "2");   
+    // get all
+    let response = client.get("/demo/users").await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let body =response.json::<Vec<UserRspDto>>().await;
+    assert_eq!(body.len(), 1);   
 }

@@ -10,6 +10,7 @@ pub enum ServerError {
 }
 
 pub static INVALID_PARAMS: &str = "error.invalid_params";
+pub static USER_NOT_FOUND: &str = "error.business.user_not_found";
 
 impl axum::response::IntoResponse for ServerError {
     fn into_response(self) -> Response {

@@ -2,13 +2,12 @@ use std::collections::HashMap;
 
 use crate::{
     common::context::AppState,
-    dto::{CreateUserReq, DeleteUserRspDto, UpdateUserReq, UserRspDto},
+    dto::{CreateUserReq, DeleteUserRspDto, PaginationParams, Paginated, UpdateUserReq, UserRspDto},
     error::{INVALID_PARAMS, USER_NOT_FOUND},
 };
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
-    Json,
 };
 use axum_extra::TypedHeader;
 use entity::user;
@@ -18,7 +17,7 @@ use immortal_axum_utils::{
 };
 use immortal_intl_rs::t;
 use sea_orm::{
-    ActiveModelTrait, DatabaseConnection, EntityTrait, ModelTrait, Set, TransactionTrait,
+    ActiveModelTrait, DatabaseConnection, EntityTrait, ItemsAndPagesNumber, ModelTrait, PaginatorTrait, Set, TransactionTrait
 };
 use serde::Deserialize;
 use uuid::Uuid;
@@ -114,16 +113,31 @@ pub async fn delete_user(
 
 pub async fn get_user_list(
     State(AppState { db, redis: _ }): State<AppState>,
-) -> Result<Json<Vec<UserRspDto>>, ErrorResponse> {
-    Ok(user::Entity::find().all(&db).await.map(|users| {
-        Json(
-            users
-                .into_iter()
-                .map(|model| UserRspDto {
-                    id: model.id,
-                    name: model.name,
-                })
-                .collect(),
-        )
+    Query(PaginationParams {
+        page_size,
+        page,
+    }): Query<PaginationParams>,
+) -> Result<Paginated<UserRspDto>, ErrorResponse> {
+    // sea_orm 中 page 以 0 开始，界面中以 1 开始
+    let page = page - 1;
+    let users = user::Entity::find();
+    let page_size = page_size.unwrap_or(10_u64);
+    let user_pages = users.paginate(&db, page_size);
+    let ItemsAndPagesNumber {
+        number_of_items,
+        number_of_pages,
+    } = user_pages.num_items_and_pages().await?;
+    Ok(user_pages.fetch_page(page).await.map(|users| Paginated {
+        items: users
+            .into_iter()
+            .map(|model| UserRspDto {
+                id: model.id,
+                name: model.name,
+            })
+            .collect(),
+        total_num: number_of_items,
+        total_page: number_of_pages,
+        page,
+        page_size,
     })?)
 }

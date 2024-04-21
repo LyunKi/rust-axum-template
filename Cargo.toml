@@ -51,4 +51,3 @@ uuid = "1.8.0"
 validator = { version = "0.17.0", features = ["derive"] }
 anyhow = "1.0.82"
 form_urlencoded = "1.2.1"
-axum-test-helpers = "0.7.5"

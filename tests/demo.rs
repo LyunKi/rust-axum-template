@@ -1,12 +1,14 @@
-use __template__::{app, dto::{CreateUserReq, UpdateUserReq, UserRspDto}};
+use __template__::{
+    app,
+    dto::{CreateUserReq, Paginated, UpdateUserReq, UserRspDto},
+};
 use axum::{
     body::Body,
-    http::{self, Request, StatusCode}, 
+    http::{self, Request, StatusCode},
 };
-use axum_test_helpers::TestClient;
 use dotenv::dotenv;
 use http_body_util::BodyExt;
-use immortal_axum_utils::error::ErrorResponseBody;
+use immortal_axum_utils::{error::ErrorResponseBody, test_helpers::TestClient};
 use tower::{Service, ServiceExt};
 
 #[tokio::test]
@@ -73,11 +75,13 @@ async fn test_validation() {
 
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 
-    let body =response.json::<ErrorResponseBody>().await;
+    let body = response.json::<ErrorResponseBody>().await;
     assert_eq!(&body.code, "error.bad_request");
-    assert_eq!(body.children.unwrap().first().unwrap().code, "error.business.name_limit");
+    assert_eq!(
+        body.children.unwrap().first().unwrap().code,
+        "error.business.name_limit"
+    );
 }
-
 
 #[tokio::test]
 async fn test_crud() {
@@ -90,25 +94,34 @@ async fn test_crud() {
     // create
     let response = client.post("/demo/users").json(&create_user_req).await;
     assert_eq!(response.status(), StatusCode::OK);
-    let body =response.json::<UserRspDto>().await;
+    let body = response.json::<UserRspDto>().await;
     let id = body.id;
     assert_eq!(body.name, "1");
     // get one
     let response = client.get(&format!("/demo/users/{id}")).await;
     assert_eq!(response.status(), StatusCode::OK);
-    let body =response.json::<UserRspDto>().await;
-    assert_eq!(body.name, "1");   
+    let body = response.json::<UserRspDto>().await;
+    assert_eq!(body.name, "1");
     // update
     let req = UpdateUserReq {
-        name: "2".to_string()
+        name: "2".to_string(),
     };
     let response = client.put(&format!("/demo/users/{id}")).json(&req).await;
     assert_eq!(response.status(), StatusCode::OK);
-    let body =response.json::<UserRspDto>().await;
-    assert_eq!(body.name, "2");   
+    let body = response.json::<UserRspDto>().await;
+    assert_eq!(body.name, "2");
     // get all
-    let response = client.get("/demo/users").await;
+    let response = client.get("/demo/users?page=1&page_size=10").await;
     assert_eq!(response.status(), StatusCode::OK);
-    let body =response.json::<Vec<UserRspDto>>().await;
-    assert_eq!(body.len(), 1);   
+    let body = response.json::<Paginated<UserRspDto>>().await;
+    let before_total_num = body.total_num;
+    // delete
+    let response = client.delete(&format!("/demo/users/{id}")).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    // get all
+    let response = client.get("/demo/users?page=1&page_size=10").await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = response.json::<Paginated<UserRspDto>>().await;
+    let current_total_num = body.total_num;
+    assert_eq!(current_total_num, before_total_num - 1);
 }

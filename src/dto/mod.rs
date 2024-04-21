@@ -25,3 +25,18 @@ pub struct UpdateUserReq {
 pub struct DeleteUserRspDto {
     pub affected_rows: usize,
 }
+
+#[derive(Deserialize)]
+pub struct PaginationParams {
+    pub page_size: Option<u64>,
+    pub page: u64,
+}
+
+#[derive(Serialize, IntoResponse, Deserialize)]
+pub struct Paginated<T: Serialize> {
+    pub page: u64,
+    pub page_size: u64,
+    pub total_num: u64,
+    pub total_page: u64,
+    pub items: Vec<T>,
+}

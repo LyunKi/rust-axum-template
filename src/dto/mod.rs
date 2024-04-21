@@ -40,3 +40,10 @@ pub struct Paginated<T: Serialize> {
     pub total_page: u64,
     pub items: Vec<T>,
 }
+
+
+#[derive(Validate, Serialize, Deserialize)]
+pub struct SetRedisValueReq {
+    pub value: String,
+}
+

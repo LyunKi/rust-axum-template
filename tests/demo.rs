@@ -1,6 +1,6 @@
 use __template__::{
     app,
-    dto::{CreateUserReq, Paginated, UpdateUserReq, UserRspDto},
+    dto::{CreateUserReq, Paginated, SetRedisValueReq, UpdateUserReq, UserRspDto},
 };
 use axum::{
     body::Body,
@@ -124,4 +124,27 @@ async fn test_crud() {
     let body = response.json::<Paginated<UserRspDto>>().await;
     let current_total_num = body.total_num;
     assert_eq!(current_total_num, before_total_num - 1);
+}
+
+#[tokio::test]
+async fn test_redis() {
+    dotenv().ok();
+    let app = app::init().await;
+    let client = TestClient::new(app);
+    let id = "redis_key";
+    // set
+    let req = SetRedisValueReq {
+        value: "redis_value".to_string(),
+    };
+    let response = client.put(&format!("/demo/redis/{id}")).json(&req).await;
+    assert_eq!(response.status(), StatusCode::OK);
+
+    // get
+    let response = client.get(&format!("/demo/redis/{id}")).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(response.text().await, "redis_value");
+
+    // delete
+    let response = client.delete(&format!("/demo/redis/{id}")).await;
+    assert_eq!(response.status(), StatusCode::OK);
 }

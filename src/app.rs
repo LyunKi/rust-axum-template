@@ -111,6 +111,12 @@ pub async fn init() -> Router {
                 .delete(handlers::delete_user)
                 .put(handlers::update_user),
         )
+        .route(
+            "/demo/redis/:id",
+            routing::get(handlers::test_redis_get)
+                .delete(handlers::test_redis_delete)
+                .put(handlers::test_redis_set),
+        )
         .layer(
             ServiceBuilder::new()
                 .layer(CompressionLayer::new())

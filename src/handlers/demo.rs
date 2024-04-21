@@ -2,11 +2,14 @@ use std::collections::HashMap;
 
 use crate::{
     common::context::AppState,
-    dto::{CreateUserReq, DeleteUserRspDto, PaginationParams, Paginated, UpdateUserReq, UserRspDto},
+    dto::{
+        CreateUserReq, DeleteUserRspDto, Paginated, PaginationParams, SetRedisValueReq,
+        UpdateUserReq, UserRspDto,
+    },
     error::{INVALID_PARAMS, USER_NOT_FOUND},
 };
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Json, Path, Query, State},
     http::StatusCode,
 };
 use axum_extra::TypedHeader;
@@ -16,8 +19,10 @@ use immortal_axum_utils::{
     extractors::{headers::AcceptLanguage, validation::ValidatedJson},
 };
 use immortal_intl_rs::t;
+use redis::AsyncCommands;
 use sea_orm::{
-    ActiveModelTrait, DatabaseConnection, EntityTrait, ItemsAndPagesNumber, ModelTrait, PaginatorTrait, Set, TransactionTrait
+    ActiveModelTrait, DatabaseConnection, EntityTrait, ItemsAndPagesNumber, ModelTrait,
+    PaginatorTrait, Set, TransactionTrait,
 };
 use serde::Deserialize;
 use uuid::Uuid;
@@ -113,10 +118,7 @@ pub async fn delete_user(
 
 pub async fn get_user_list(
     State(AppState { db, redis: _ }): State<AppState>,
-    Query(PaginationParams {
-        page_size,
-        page,
-    }): Query<PaginationParams>,
+    Query(PaginationParams { page_size, page }): Query<PaginationParams>,
 ) -> Result<Paginated<UserRspDto>, ErrorResponse> {
     // sea_orm 中 page 以 0 开始，界面中以 1 开始
     let page = page - 1;
@@ -140,4 +142,28 @@ pub async fn get_user_list(
         page,
         page_size,
     })?)
+}
+
+pub async fn test_redis_set(
+    State(AppState { db: _, mut redis }): State<AppState>,
+    Path(id): Path<String>,
+    Json(body): Json<SetRedisValueReq>,
+) -> Result<(), ErrorResponse> {
+    redis.set(id, body.value).await?;
+    Ok(())
+}
+
+pub async fn test_redis_get(
+    State(AppState { db: _, mut redis }): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<String, ErrorResponse> {
+    Ok(redis.get(id).await?)
+}
+
+pub async fn test_redis_delete(
+    State(AppState { db: _, mut redis }): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<(), ErrorResponse> {
+    redis.del(id).await?;
+    Ok(())
 }

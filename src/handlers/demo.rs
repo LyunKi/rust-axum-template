@@ -139,7 +139,7 @@ pub async fn get_user_list(
             .collect(),
         total_num: number_of_items,
         total_page: number_of_pages,
-        page,
+        page: page + 1,
         page_size,
     })?)
 }
